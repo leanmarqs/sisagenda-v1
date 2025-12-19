@@ -1,37 +1,33 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL
 
-export interface CreateAppointmentPayload {
+type CreateAppointmentPayload = {
+  calendarId: string
   name: string
-  email: string
-  date: string
-  time: string
+  description: string
+  location: string
+  start: string
+  end: string
 }
 
 export async function createAppointment(
   payload: CreateAppointmentPayload
 ) {
-  const response = await fetch(API_BASE_URL, {
+  const response = await fetch(`${API_URL}/appointments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      version: 'v1',
-      action: 'createAppointment',
-      data: payload
-    })
+    body: JSON.stringify(payload)
   })
 
   if (!response.ok) {
-    let message = 'Erro ao criar agendamento'
-
+    let message = 'Erro ao criar evento'
     try {
-      const errorBody = await response.json()
-      message = errorBody?.message ?? message
+      const data = await response.json()
+      message = data?.message ?? message
     } catch {
-      console.error('[createAppointment] Invalid JSON error response')
+      // resposta sem corpo
     }
-
     throw new Error(message)
   }
 
